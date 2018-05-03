@@ -1,0 +1,41 @@
+version: "2"
+
+services:
+
+  angular-development:
+      image: maker-sights/angular-development
+      build:
+        context: ./angular
+        dockerfile: Dockerfile
+      environment:
+        - NODE_ENV=development
+      ports:
+        - "4200:4200"
+      volumes:
+        - ./angular:/usr/app
+        - /usr/app/node_modules
+
+  gateway-development:
+      image: maker-sights/gateway-development
+      build: ./gateway
+      ports:
+        - "9011:9011"
+      depends_on:
+        - mongo-development
+      links:
+        - mongo-development
+      volumes:
+        - ./gateway/app/:/app/
+      environment:
+      - NODE_ENV=development
+
+  mongo-development:
+    image: maker-sights/mongo-development
+    build:
+      context: ./mongo
+      dockerfile: Dockerfile
+    ports:
+      - "8050:8050"
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db

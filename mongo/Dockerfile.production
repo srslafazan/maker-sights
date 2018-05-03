@@ -1,0 +1,5 @@
+# Official mongo base image
+FROM mongo
+
+# Author and Maintainer
+MAINTAINER Shain Lafazan

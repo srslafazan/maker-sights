@@ -1,0 +1,73 @@
+version: "2"
+
+# networks:
+#   default:
+#     driver: bridge
+
+services:
+
+  reverse-proxy-production:
+    image: scale-innovations/reverse-proxy-production
+    build:
+      context: .
+      dockerfile: ./reverse-proxy/Dockerfile.production
+    ports:
+      - "80:80"
+    depends_on:  # TODO - Remove dependency by creating recovery mechanisms
+      - static-production
+      - gateway-production
+    links:
+      - static-production
+      - gateway-production
+    restart: always
+
+  static-production:
+    image: scale-innovations/static-production
+    build:
+      context: ./static
+      dockerfile: Dockerfile.production
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "8080:8080"
+    # volumes:
+    #   - ./static/dist:/usr/share
+    restart: always
+
+  gateway-production:
+    image: scale-innovations/gateway-production
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile.production
+    ports:
+      - "9011:9011"
+    # depends_on:  # TODO - Remove dependency by creating recovery mechanisms
+      # - mongo-production
+    # links:
+      # - mongo-production
+    # deploy:
+      # resources:
+        # limits:
+          # cpus: '0.001'
+          # memory: 50M
+        # reservations:
+          # cpus: '0.0001'
+          # memory: 20M
+
+  # neo4j:
+  #   image: neo4j:3.0
+  #   ports:
+  #     - "17474:7474"
+    ## volumes: # adds folder with login/password
+      ## - ./db/dbms:/data/dbms
+
+  # mongo-production:
+  #   image: scale-innovations/mongo-production
+  #   build:
+  #     context: ./mongo
+  #     dockerfile: Dockerfile.production
+  #   ports:
+  #     - "8050:8050"
+  #     - "27017:27017"
+    # volumes:
+      # - ./data:/data/db
